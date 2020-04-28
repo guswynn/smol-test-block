@@ -3,6 +3,9 @@ use std::task::{Poll, Context};
 use std::pin::Pin;
 use std::env;
 
+use tokio::runtime::Runtime;
+
+
 struct Test {
     count: i64,
 }
@@ -25,13 +28,15 @@ impl Future for Test {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let count = if args.len() < 2 {
+    let count: i64 = if args.len() < 2 {
         1000
     } else {
         args[1].parse().unwrap()
     };
 
-    smol::run(async {
+    let mut rt = Runtime::new().unwrap();
+
+    rt.block_on(async move {
         let t = Test { count };
         t.await
     });
